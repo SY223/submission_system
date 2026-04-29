@@ -17,7 +17,7 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A user with this email already exists")
         if user_dict["full_name"] is not None:
             if not user_dict["full_name"].strip():
-                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="Full name cannot be empty")
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail="Full name cannot be empty")
         user = await UserRepository.create_user(db, user_dict)
         return UserRead.model_validate(user)
     
@@ -37,20 +37,20 @@ class UserService:
         return [UserRead.model_validate(u) for u in users]
 
     @staticmethod
-    async def get_user_by_id(db: AsyncSession, user_id: str):
+    async def get_user_by_id(db: AsyncSession, user_id):
         user = await UserRepository.get_user_by_id(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return UserRead.model_validate(user)
 
     @staticmethod
-    async def update_user(db: AsyncSession, user_id: str, data: UserUpdate):
+    async def update_user(db: AsyncSession, user_id, data: UserUpdate):
         user = await UserRepository.get_user_by_id(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         if data.full_name is not None:
             if not data.full_name.strip():
-                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="Full name cannot be empty")
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail="Full name cannot be empty")
         if data.email is not None:
             if data.email != user.email:
                 existing = await UserRepository.get_user_by_email(db, data.email)
@@ -74,7 +74,7 @@ class UserService:
             update_data["email"] = new_email
         if "full_name" in update_data:
             if not update_data["full_name"].strip():
-                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="Full name cannot be empty")
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail="Full name cannot be empty")
             update_data["full_name"] = update_data["full_name"].lower()
         updated_user = await UserRepository.partial_update_user(db, user, update_data)
         return UserRead.model_validate(updated_user)

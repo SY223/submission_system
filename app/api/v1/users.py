@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,14 +31,14 @@ async def get_all_users(db: AsyncSession = Depends(get_async_db)):
 
 @user_router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(
-    user_id: str,
+    user_id: UUID,
     db: AsyncSession = Depends(get_async_db)
 ):
     return await UserService.get_user_by_id(db, user_id)
 
 @user_router.put("/{user_id}", response_model=UserRead)
 async def update_user(
-    user_id: str,
+    user_id,
     data: UserUpdate,
     db: AsyncSession = Depends(get_async_db)
 ):

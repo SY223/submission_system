@@ -3,8 +3,7 @@ import enum
 from datetime import datetime
 from typing import List, Optional, TYPE_CHECKING
 
-from sqlalchemy import String, DateTime, Enum as SAEnum, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String, DateTime, Enum as SAEnum, func, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db_async import Base
 
@@ -21,7 +20,7 @@ class UserRole(str, enum.Enum):
 
 class User(Base):
     __tablename__ = "users"
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True),primary_key=True, default=uuid.uuid4, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid,primary_key=True, default=uuid.uuid4, index=True)
     full_name: Mapped[str] = mapped_column(String(120), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     role: Mapped[UserRole] = mapped_column(SAEnum(UserRole, name="user_role"), default=UserRole.student, nullable=False)
