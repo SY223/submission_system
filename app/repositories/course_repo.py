@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.course_model import Course
+from uuid import UUID
+
 
 class CourseRepository:
     @staticmethod
@@ -17,12 +19,12 @@ class CourseRepository:
         return new_course
 
     @staticmethod
-    async def get_course_by_code(db: AsyncSession, course_code: str):
+    async def get_course_by_code(db: AsyncSession, course_code):
         result = await db.execute(select(Course).where(Course.code == course_code))
         return result.scalars().first()
 
     @staticmethod
-    async def get_course_by_id(db: AsyncSession, course_id: str):
+    async def get_course_by_id(db: AsyncSession, course_id: UUID):
         result = await db.execute(select(Course).where(Course.id == course_id))
         return result.scalars().first()
 

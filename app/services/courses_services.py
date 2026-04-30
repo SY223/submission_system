@@ -6,6 +6,7 @@ from app.schemas.course_schema import (
 from app.repositories.course_repo import CourseRepository
 from app.models.user_model import UserRole
 from app.models.user_model import User
+from uuid import UUID
 
 
 class CourseService:
@@ -31,6 +32,8 @@ class CourseService:
     @staticmethod
     async def get_all_courses(db: AsyncSession):
         courses = await CourseRepository.get_all_courses(db)
+        if not courses:
+            raise HTTPException(status_code=404, detail="No course in library")
         return [CourseResponse.model_validate(c) for c in courses]
 
     @staticmethod
@@ -42,7 +45,7 @@ class CourseService:
         return CourseResponse.model_validate(course)
 
     @staticmethod
-    async def get_course_by_id(db: AsyncSession, course_id: str):
+    async def get_course_by_id(db: AsyncSession, course_id: UUID):
         course = await CourseRepository.get_course_by_id(db, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
@@ -51,7 +54,7 @@ class CourseService:
     @staticmethod
     async def update_course(
         db: AsyncSession,
-        course_id: str,
+        course_id: UUID,
         data: CourseUpdate,
         current_user
     ):
@@ -75,7 +78,7 @@ class CourseService:
     @staticmethod
     async def partial_update_course(
         db: AsyncSession,
-        course_id: str,
+        course_id: UUID,
         data: CoursePatch,
         current_user
     ):
@@ -97,7 +100,7 @@ class CourseService:
     @staticmethod
     async def delete_course(
         db: AsyncSession,
-        course_id: str,
+        course_id: UUID,
         current_user
     ):
         if current_user.role != UserRole.teacher:

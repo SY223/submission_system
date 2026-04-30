@@ -6,7 +6,7 @@ from app.schemas.course_schema import (
 )
 from app.services.courses_services import CourseService
 from app.models.user_model import User
-
+from uuid import UUID
 
 course_router = APIRouter()
 
@@ -26,7 +26,7 @@ async def get_all_courses(
 ):
     return await CourseService.get_all_courses(db)
 
-@course_router.get("/{course_code}", response_model=CourseResponse)
+@course_router.get("/code/{course_code}", response_model=CourseResponse)
 async def get_course_by_code(
     course_code: str,
     db: AsyncSession = Depends(get_async_db)
@@ -34,9 +34,9 @@ async def get_course_by_code(
     return await CourseService.get_course_by_code(db, course_code)
 
 
-@course_router.get("/{course_id}", response_model=CourseResponse)
+@course_router.get("/id/{course_id}", response_model=CourseResponse)
 async def get_course_by_id(
-    course_id: str,
+    course_id: UUID,
     db: AsyncSession = Depends(get_async_db)
 ):
     return await CourseService.get_course_by_id(db, course_id)
@@ -44,7 +44,7 @@ async def get_course_by_id(
 
 @course_router.put("/{course_id}", response_model=CourseResponse)
 async def update_course(
-    course_id: str,
+    course_id: UUID,
     data: CourseUpdate,
     db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
@@ -53,7 +53,7 @@ async def update_course(
 
 @course_router.patch("/{course_id}", response_model=CourseResponse)
 async def partial_update_course(
-    course_id: str,
+    course_id: UUID,
     data: CoursePatch,
     db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
@@ -62,7 +62,7 @@ async def partial_update_course(
 
 @course_router.delete("/{course_id}")
 async def delete_course(
-    course_id: str,
+    course_id: UUID,
     db: AsyncSession = Depends(get_async_db),
     current_user = Depends(get_current_user)
 ):
