@@ -1,8 +1,9 @@
-import uuid
+
 import anyio
 from fastapi import HTTPException, status, UploadFile
 from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 from app.schemas.assignment_schema import AssignmentCreate, AssignmentResponse
 from app.repositories.assignment_repo import AssignmentRepository
 from app.repositories.user_repo import UserRepository
@@ -15,7 +16,7 @@ class AssignmentService:
         db: AsyncSession,
         data: AssignmentCreate,
         file: UploadFile,
-        course_id: str,
+        course_id,
     ):
         
         upload_dir = settings.UPLOAD_DIR_ASSIGNMENTS
@@ -25,16 +26,23 @@ class AssignmentService:
         upload_path.mkdir(parents=True, exist_ok=True)
 
         student_name = data.student_name.strip().lower()
-
         student = await UserRepository.get_user_by_full_name(db, student_name)
         if not student:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student not found")
-
-        course = await CourseRepository.get_course_by_id(db, course_id)
+        
+        # Normalize course_id to UUID
+        if isinstance(course_id, UUID):
+            course_uuid = course_id
+        else:
+            try:
+                course_uuid = UUID(str(course_id))
+            except ValueError:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid course_id format")
+        course = await CourseRepository.get_course_by_id(db, course_uuid)
         if not course:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
         #Check for existing submission
-        existing = await AssignmentRepository.student_has_submitted(db, student.id, course.id)
+        existing = await AssignmentRepository.student_has_submitted(db, student.id, course_uuid)
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -75,3 +83,4 @@ class AssignmentService:
         )
         assignments = await AssignmentRepository.get_assignments_by_student_id(db, student.id)
         return [AssignmentResponse.model_validate(a) for a in assignments]
+

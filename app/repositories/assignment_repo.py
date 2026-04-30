@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.assignment_model import Assignment
+from uuid import UUID
 import uuid
 
 
@@ -20,7 +21,7 @@ class AssignmentRepository:
     @staticmethod
     async def get_assignment_by_id(
         db: AsyncSession,
-        assignment_id: str
+        assignment_id: uuid.UUID
     ):
         result = await db.execute(select(Assignment).where(Assignment.id == assignment_id))
         return result.scalars().first()
@@ -40,7 +41,7 @@ class AssignmentRepository:
         return result.scalars().all()
     
     @staticmethod
-    async def get_assignments_by_student_id(db: AsyncSession, student_id: uuid.UUID):
+    async def get_assignments_by_student_id(db: AsyncSession, student_id: UUID):
         result = await db.execute(
             select(Assignment).where(Assignment.student_id == student_id)
         )
@@ -49,8 +50,8 @@ class AssignmentRepository:
     @staticmethod
     async def student_has_submitted(
         db: AsyncSession,
-        student_id: uuid.UUID,
-        course_id: uuid.UUID
+        student_id: UUID,
+        course_id: UUID
     ):
         result = await db.execute(
             select(Assignment).where(

@@ -5,6 +5,7 @@ from app.repositories.comment_repo import CommentRepository
 from app.repositories.assignment_repo import AssignmentRepository
 from app.repositories.user_repo import UserRepository
 from app.schemas.comment_schema import CommentCreate, CommentResponse
+from uuid import UUID
 
 
 
@@ -12,7 +13,7 @@ class CommentService:
     @staticmethod
     async def add_comment(
         db: AsyncSession,
-        assignment_id: str,
+        assignment_id: UUID,
         data: CommentCreate
     ):
         teacher_name = data.teacher_name.strip()
@@ -37,9 +38,9 @@ class CommentService:
         comment_dict = {
             "assignment_id": assignment.id,
             "teacher_id": teacher.id,
-            "content": data.comment
+            "content": data.content
         }
         comment = await CommentRepository.create_comment(db, comment_dict)
-        return CommentResponse.model_validate(comment)
+        return comment
 
         

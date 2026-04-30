@@ -4,13 +4,13 @@ from datetime import datetime
 
 class CommentCreate(BaseModel):
     teacher_name: str
-    comment: str
+    content: str
 
 
 class CommentResponse(BaseModel):
     id: UUID
     assignment_id: UUID
-    teacher_id: UUID
+    teacher_name: str
     content: str
     created_at: datetime
 

@@ -6,6 +6,8 @@ from app.core.deps import get_async_db, get_current_user, require_student, requi
 from app.services.assignments_services import AssignmentService
 from app.schemas.comment_schema import CommentCreate, CommentResponse
 from app.services.comments_services import CommentService
+from uuid import UUID
+import uuid
 
 assignment_router = APIRouter()
 
@@ -56,17 +58,23 @@ async def get_student_assignments(
 async def add_comment_to_assignment(
     assignment_id: str,
     teacher_name: str = Form(...),
-    comment: str = Form(...),
+    content: str = Form(...),
     db: AsyncSession = Depends(get_async_db),
     current_user = Depends(require_teacher)
 ):
     data = CommentCreate(
         teacher_name=teacher_name,
-        comment=comment
+        content=content
     )
-
-    return await CommentService.add_comment(
+    saved_comment = await CommentService.add_comment(
         db=db,
-        assignment_id=assignment_id,
+        assignment_id=uuid.UUID(assignment_id),
         data=data
     )
+    return CommentResponse(
+        id=saved_comment.id,
+        assignment_id=saved_comment.assignment_id,
+        teacher_name=saved_comment.teacher.full_name,
+        content=saved_comment.content,
+        created_at=saved_comment.created_at
+    ) # type: ignore
