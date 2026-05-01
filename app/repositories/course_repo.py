@@ -14,7 +14,7 @@ class CourseRepository:
             teacher_id=data["teacher_id"]
         )
         db.add(new_course)
-        await db.commit()
+        await db.flush()
         await db.refresh(new_course)
         return new_course
 
@@ -41,11 +41,11 @@ class CourseRepository:
     ):
         for field, value in data.items():
             setattr(course, field, value)
-        await db.commit()
+        await db.flush()
         await db.refresh(course)
         return course
 
     @staticmethod
     async def delete_course(db: AsyncSession, course: Course):
         await db.delete(course)
-        await db.commit()
+        await db.flush()

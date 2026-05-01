@@ -41,6 +41,8 @@ class CommentService:
             "content": data.content
         }
         comment = await CommentRepository.create_comment(db, comment_dict)
+        await db.commit()
+        await db.refresh(comment)
         return comment
 
         

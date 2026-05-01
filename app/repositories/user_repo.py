@@ -13,7 +13,7 @@ class UserRepository:
             role=data["role"]
         )
         db.add(new_user)
-        await db.commit()
+        await db.flush()
         await db.refresh(new_user)
         return new_user
 
@@ -44,7 +44,7 @@ class UserRepository:
         user.full_name = data.full_name
         user.email = data.email
         user.role = data.role
-        await db.commit()
+        await db.flush()
         await db.refresh(user)
         return user
 
@@ -52,11 +52,11 @@ class UserRepository:
     async def partial_update_user(db: AsyncSession, user: User, update_data: dict):
         for field, value in update_data.items():
             setattr(user, field, value)
-        await db.commit()
+        await db.flush()
         await db.refresh(user)
         return user
     
     @staticmethod
     async def delete_user(db: AsyncSession, user: User):
         await db.delete(user)
-        await db.commit()
+        await db.flush()

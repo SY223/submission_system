@@ -7,6 +7,6 @@ class CommentRepository:
     async def create_comment(db: AsyncSession, data: dict):
         comment = Comment(**data)
         db.add(comment)
-        await db.commit()
+        await db.flush()
         await db.refresh(comment)
         return comment

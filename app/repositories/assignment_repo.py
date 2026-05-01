@@ -14,7 +14,7 @@ class AssignmentRepository:
     ):
         new_assignment = Assignment(**data)
         db.add(new_assignment)
-        await db.commit()
+        await db.flush()
         await db.refresh(new_assignment)
         return new_assignment
     

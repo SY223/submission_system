@@ -27,6 +27,8 @@ class CourseService:
         course_dict = data.model_dump()
         course_dict["teacher_id"] = current_user.id
         course = await CourseRepository.create_course(db, course_dict)
+        await db.commit()
+        await db.refresh(course)
         return CourseResponse.model_validate(course)
 
     @staticmethod
@@ -73,6 +75,8 @@ class CourseService:
             if existing:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A course with this code already exists")
         updated_course = await CourseRepository.update_course(db, course, update_dict)
+        await db.commit()
+        await db.refresh(updated_course)
         return CourseResponse.model_validate(updated_course)
 
     @staticmethod
@@ -95,6 +99,8 @@ class CourseService:
             if existing:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A course with this code already exists")
         updated_course = await CourseRepository.update_course(db, course, update_dict)
+        await db.commit()
+        await db.refresh(updated_course)
         return CourseResponse.model_validate(updated_course)
 
     @staticmethod
@@ -111,6 +117,7 @@ class CourseService:
         if course.teacher_id != current_user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to delete this course")
         await CourseRepository.delete_course(db, course)
+        await db.commit()
         return {"message": "Course deleted successfully"}
         
     

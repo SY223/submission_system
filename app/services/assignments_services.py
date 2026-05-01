@@ -63,6 +63,8 @@ class AssignmentService:
         }
 
         assignment = await AssignmentRepository.create_assignment(db, assignment_dict)
+        await db.commit()
+        await db.refresh(assignment)
         return AssignmentResponse.model_validate(assignment)
 
     @staticmethod

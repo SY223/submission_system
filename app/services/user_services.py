@@ -19,6 +19,8 @@ class UserService:
             if not user_dict["full_name"].strip():
                 raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail="Full name cannot be empty")
         user = await UserRepository.create_user(db, user_dict)
+        await db.commit()
+        await db.refresh(user)
         return UserRead.model_validate(user)
     
     @staticmethod
@@ -57,6 +59,8 @@ class UserService:
                 if existing:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A user with this email already exists")
         updated_user = await UserRepository.update_user(db, user, data)
+        await db.commit()
+        await db.refresh(updated_user)
         return UserRead.model_validate(updated_user)
     
     @staticmethod
@@ -77,14 +81,16 @@ class UserService:
                 raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail="Full name cannot be empty")
             update_data["full_name"] = update_data["full_name"].lower()
         updated_user = await UserRepository.partial_update_user(db, user, update_data)
+        await db.commit()
+        await db.refresh(updated_user)
         return UserRead.model_validate(updated_user)
 
 
-    
     @staticmethod
     async def delete_user(db: AsyncSession, user_id: str):
         user = await UserRepository.get_user_by_id(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         await UserRepository.delete_user(db, user)
+        await db.commit()
         return {"message": "User deleted successfully"}
