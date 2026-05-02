@@ -17,13 +17,16 @@ if TYPE_CHECKING:
 class UserRole(str, enum.Enum):
     student = "student"
     teacher = "teacher"
+    admin = "admin"
 
 class User(Base):
     __tablename__ = "users"
     id: Mapped[uuid.UUID] = mapped_column(Uuid,primary_key=True, default=uuid.uuid4, index=True)
     full_name: Mapped[str] = mapped_column(String(120), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String, nullable=True)
     role: Mapped[UserRole] = mapped_column(SAEnum(UserRole, name="user_role"), default=UserRole.student, nullable=False)
+    is_active: Mapped[bool] = mapped_column(nullable=False, server_default="true")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), onupdate=func.now())
 
@@ -31,6 +34,10 @@ class User(Base):
     courses: Mapped[List["Course"]] = relationship("Course", back_populates="teacher",lazy="selectin")
     assignments: Mapped[List["Assignment"]] = relationship("Assignment", back_populates="student", lazy="selectin")
     comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="teacher", lazy="selectin")
+    # For password reset
+    reset_token:Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    reset_token_expiry:Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    refresh_token:Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     # @property
     # def is_teacher(self) -> bool:

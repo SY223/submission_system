@@ -4,13 +4,16 @@ from sqlalchemy import select, func
 from app.models.user_model import User
 
 
+
 class UserRepository:
     @staticmethod
     async def create_user(db: AsyncSession, data):
         new_user = User(
             full_name=data["full_name"],
             email=data["email"],
-            role=data["role"]
+            role=data["role"],
+            hashed_password=data["hashed_password"],
+            is_active=data.get("is_active", True)
         )
         db.add(new_user)
         await db.flush()
@@ -30,8 +33,8 @@ class UserRepository:
         return result.scalars().first()
     
     @staticmethod
-    async def get_all_users(db: AsyncSession):
-        result = await db.execute(select(User))
+    async def get_all_users(db: AsyncSession, skip: int = 0, limit: int = 100):
+        result = await db.execute(select(User).offset(skip).limit(limit))
         return result.scalars().all()
     
     @staticmethod

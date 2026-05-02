@@ -15,6 +15,7 @@ async def create_student(
     data: UserCreate,
     db: AsyncSession = Depends(get_async_db)
 ):
+    """Register student"""
     return await UserService.create_student(db, data)
 
 
@@ -23,11 +24,16 @@ async def create_teacher(
     data: UserCreate,
     db: AsyncSession = Depends(get_async_db)
 ):
+    """Register teacher"""
     return await UserService.create_teacher(db, data)
     
 @user_router.get("/", response_model=list[UserRead])
-async def get_all_users(db: AsyncSession = Depends(get_async_db)):
-    return await UserService.get_all_users(db)
+async def get_all_users(
+        skip: int = 0,
+        limit: int = 100,
+        db: AsyncSession = Depends(get_async_db)
+    ):
+    return await UserService.get_all_users(db, skip, limit)
 
 @user_router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(

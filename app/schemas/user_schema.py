@@ -8,17 +8,20 @@ from enum import Enum
 class UserRole(str, Enum):
     student = "student"
     teacher = "teacher"
+    admin = "admin"
 
 class UserBase(BaseModel):
     full_name: str
     email: EmailStr
 
 class UserCreate(UserBase):
-    pass
+    password: str
+    role: UserRole | None = None
 
 class UserRead(UserBase):
     id: UUID
     role: UserRole
+    is_active: bool
     created_at: datetime
     updated_at: datetime | None
 
